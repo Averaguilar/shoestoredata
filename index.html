@@ -745,7 +745,7 @@
 
         // Asynchronous function to interact with the Gemini API for chat
         async function sendMessageToGemini(userMessage, fullContextData) {
-            const apiKey = "" // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+            const apiKey = "AIzaSyC5FrPYTVvHHibyeKe-BsDWbmVqYwIyQus";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
             // Add the new user message to the chat history
@@ -1105,7 +1105,7 @@
                 // Prepare payload for Gemini API call
                 const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
                 const payload = { contents: chatHistory };
-                const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+                const apiKey = "AIzaSyC5FrPYTVvHHibyeKe-BsDWbmVqYwIyQus";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 try {
@@ -1211,7 +1211,7 @@
 
                 const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
                 const payload = { contents: chatHistory };
-                const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+                const apiKey = "AIzaSyC5FrPYTVvHHibyeKe-BsDWbmVqYwIyQus";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 try {
