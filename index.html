@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHOE STORE: Reporte de Comportamiento del Cliente</title>
+    <!-- Google Fonts - Lato for professional and legible typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN for interactive data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF CDN for exporting content to PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Define CSS variables for consistent theming */
+        :root {
+            --primary-bg: #F8F9FA; /* Very light grey or white for main background */
+            --text-color: #212529; /* Dark grey for main text */
+            --heading-color: #1c1c1c; /* Almost black for titles and headings */
+            --accent-color: #004A7F; /* Serious corporate blue for important elements, buttons, links, and highlighting */
+            --light-accent-color: #B08D57; /* Subtle golden/ochre for subtle highlights/details */
+            --card-bg: #FFFFFF; /* White for card backgrounds */
+            --border-color: #e0e0e0; /* Light grey for borders */
+            --nav-bg: #e9ecef; /* Light grey for navigation background */
+            --nav-link-hover: #d0d5d9; /* Darker grey on navigation link hover */
+        }
+
+        /* Base body styles for typography and background */
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased; /* Smoother font rendering */
+            -moz-osx-font-smoothing: grayscale; /* Smoother font rendering */
+        }
+
+        /* Container for centralizing content and setting max width */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto; /* Center the container */
+            padding: 20px;
+            box-sizing: border-box; /* Include padding in element's total width and height */
+        }
+
+        /* Header section styling */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow for depth */
+            border-radius: 8px; /* Rounded corners */
+        }
+
+        /* SHOE STORE Logo styling within the header */
+        header img {
+            max-width: 180px; /* Adjusted size for better visibility */
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 8px; /* Rounded corners for the logo */
+        }
+
+        /* Main title styling */
+        header h1 {
+            color: var(--heading-color);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        /* Subtitle styling */
+        header h2 {
+            color: var(--text-color);
+            font-size: 1.2em;
+            font-weight: 400;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+        /* General section styling */
+        section {
+            background-color: var(--card-bg);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow for depth */
+        }
+
+        /* Section heading styling with accent color and an underline effect */
+        h3 {
+            color: var(--accent-color);
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Underline effect for h3 using ::after pseudo-element */
+        h3::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background-color: var(--light-accent-color); /* Subtle accent for the underline */
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+
+        /* Navigation menu styling */
+        .main-nav {
+            background-color: var(--nav-bg);
+            padding: 10px 0;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            text-align: center; /* Center the links if they don't fill the width */
+        }
+
+        .main-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex; /* Use flexbox for horizontal layout */
+            justify-content: center; /* Center navigation items */
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+            gap: 15px; /* Space between navigation items */
+        }
+
+        .main-nav li a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: block; /* Make the whole area clickable */
+        }
+
+        .main-nav li a:hover {
+            background-color: var(--nav-link-hover);
+            color: var(--accent-color);
+        }
+
+
+        /* Chart specific styling */
+        #trafficChart {
+            max-height: 450px;
+            width: 100%;
+        }
+
+        /* Comparative Layout for Sección 3 (Father's Day Impact) */
+        .comparative-grid {
+            display: grid;
+            /* Responsive grid: auto-fit creates as many columns as fit, minmax sets min/max width */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px; /* Space between grid items */
+            margin-top: 20px;
+        }
+
+        /* Styling for individual cards in the comparative grid */
+        .comparative-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            background-color: var(--primary-bg); /* Slightly different background than section for contrast */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03); /* Lighter shadow */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Distribute content nicely */
+        }
+
+        /* Styling for card titles */
+        .comparative-card h4 {
+            color: var(--heading-color);
+            font-size: 1.3em;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        /* Styling for data points in cards */
+        .comparative-card .data-point {
+            font-weight: 700;
+            color: var(--accent-color); /* Accent color for key data */
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        /* Styling for analysis text in cards */
+        .comparative-card .analysis-text {
+            font-style: italic;
+            color: var(--text-color);
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+
+        /* Action Plan Layout for Sección 4 */
+        .action-plan-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        /* Styling for individual cards in the action plan grid */
+        .action-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            background-color: var(--primary-bg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth transition for hover effect */
+        }
+
+        /* Hover effect for action cards */
+        .action-card:hover {
+            transform: translateY(-5px); /* Lift card slightly */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08); /* More prominent shadow on hover */
+        }
+
+        /* Styling for action card titles */
+        .action-card h4 {
+            color: var(--accent-color);
+            font-size: 1.2em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        /* Bold text within action cards */
+        .action-card strong {
+            color: var(--heading-color);
+        }
+        
+        /* Button styling for general purpose, including data sources link */
+        .styled-button {
+            display: inline-block; /* Aligns button nicely */
+            text-decoration: none; /* Removes underline from link */
+            margin: 20px auto;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: 700;
+            color: white;
+            background-color: var(--accent-color);
+            border: none;
+            border-radius: 50px; /* Pill shape */
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .styled-button:hover {
+            background-color: #003a60; /* Darker shade on hover */
+            transform: translateY(-2px);
+        }
+
+        /* Button styling for LLM features */
+        .llm-button {
+            display: block; /* Make button full width if needed */
+            margin: 20px auto;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-weight: 700;
+            color: white;
+            background-color: var(--accent-color);
+            border: none;
+            border-radius: 50px; /* Pill shape */
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .llm-button:hover {
+            background-color: #003a60; /* Darker shade on hover */
+            transform: translateY(-2px);
+        }
+
+        .llm-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Summary Output Area */
+        .llm-output-area {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            display: none; /* Hidden by default */
+            transition: all 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            /* Enable vertical scrolling for text content */
+            overflow-y: auto; /* Changed from hidden to auto */
+        }
+
+        .llm-output-area.show {
+            display: block;
+            max-height: 800px; /* Arbitrary max-height for animation, adjusted for more content */
+            opacity: 1;
+        }
+
+        .llm-output-area h4 {
+            color: var(--accent-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            text-align: center;
+        }
+
+        .llm-output-area p {
+            white-space: pre-wrap; /* Preserve line breaks from LLM output */
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        .llm-output-area .loading-indicator {
+            text-align: center;
+            font-style: italic;
+            color: #6c757d;
+        }
+
+
+        /* Custom Chat Interface Styling */
+        .chat-container {
+            background-color: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 500px; /* Fixed height for the chat area */
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            background-color: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .chat-message.user {
+            background-color: var(--accent-color);
+            color: white;
+            align-self: flex-end; /* Align user messages to the right */
+            border-bottom-right-radius: 4px; /* Slight adjustment for visual appeal */
+        }
+
+        .chat-message.ai {
+            background-color: #e9ecef; /* Light grey for AI messages */
+            color: var(--text-color);
+            align-self: flex-start; /* Align AI messages to the left */
+            border-bottom-left-radius: 4px; /* Slight adjustment for visual appeal */
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input-area textarea {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            resize: none; /* Disable manual resize */
+            font-family: 'Lato', sans-serif;
+            font-size: 1em;
+            min-height: 40px; /* Minimum height for input */
+            max-height: 100px; /* Max height before scroll */
+            overflow-y: auto; /* Enable scroll if content exceeds max-height */
+        }
+
+        .chat-input-area button {
+            padding: 10px 20px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+
+        .chat-input-area button:hover {
+            background-color: #003a60;
+        }
+
+        .chat-input-area button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* Image styling for heatmap */
+        .heatmap-image {
+            display: block; /* Ensures image takes its own line */
+            max-width: 100%; /* Makes image responsive */
+            height: auto; /* Maintains aspect ratio */
+            margin: 20px auto; /* Centers image and adds vertical space */
+            border-radius: 8px; /* Rounded corners for image */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Subtle shadow */
+        }
+
+        /* Styles for zone descriptions */
+        .zone-descriptions {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .zone-descriptions h4 {
+            color: var(--accent-color);
+            font-size: 1.2em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: left; /* Align to left for descriptions */
+            font-weight: 700;
+        }
+
+        .zone-descriptions ul {
+            list-style: none; /* Remove default list bullets */
+            padding: 0;
+            margin: 0;
+        }
+
+        .zone-descriptions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .zone-descriptions li strong {
+            color: var(--heading-color);
+            margin-right: 5px;
+        }
+
+
+        /* Footer styling */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #6c757d; /* Muted grey for footer text */
+            border-top: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            border-radius: 8px;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            header h2 {
+                font-size: 1em;
+            }
+            h3 {
+                font-size: 1.5em;
+            }
+            /* Stack grid columns on smaller screens */
+            .comparative-grid, .action-plan-grid {
+                grid-template-columns: 1fr;
+            }
+            /* Adjust padding for cards and sections */
+            .comparative-card, .action-card {
+                padding: 20px;
+            }
+            section {
+                padding: 20px;
+            }
+            .llm-button, .styled-button {
+                font-size: 1em;
+                padding: 10px 20px;
+            }
+            .chat-container {
+                height: 400px; /* Smaller height for mobile chat */
+            }
+            .main-nav ul {
+                flex-direction: column; /* Stack navigation items vertically on small screens */
+                align-items: center; /* Center items when stacked */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Section 0: Source Data (Embedded and Hidden) -->
+    <!-- This script tag contains the raw JSON data for the report.
+         It's crucial for the Gemini chatbot to reference this data. -->
+    <script type="application/json" id="reportData">
+        {
+            "trafficSummary": [
+                {"Fecha": "01/06/2025", "Dia": "Domingo", "Hombres": 43, "Mujeres": 48, "Total": 91},
+                {"Fecha": "02/06/2025", "Dia": "Lunes", "Hombres": 15, "Mujeres": 28, "Total": 43},
+                {"Fecha": "03/06/2025", "Dia": "Martes", "Hombres": 14, "Mujeres": 18, "Total": 32},
+                {"Fecha": "04/06/2025", "Dia": "Miércoles", "Hombres": 9, "Mujeres": 22, "Total": 31},
+                {"Fecha": "05/06/2025", "Dia": "Jueves", "Hombres": 1, "Mujeres": 8, "Total": 9},
+                {"Fecha": "06/06/2025", "Dia": "Viernes", "Hombres": 2, "Mujeres": 24, "Total": 26},
+                {"Fecha": "07/06/2025", "Dia": "Sábado", "Hombres": 11, "Mujeres": 31, "Total": 42},
+                {"Fecha": "08/06/2025", "Dia": "Domingo", "Hombres": 21, "Mujeres": 42, "Total": 63},
+                {"Fecha": "09/06/2025", "Dia": "Lunes", "Hombres": 16, "Mujeres": 30, "Total": 46},
+                {"Fecha": "10/06/2025", "Dia": "Martes", "Hombres": 7, "Mujeres": 13, "Total": 20},
+                {"Fecha": "11/06/2025", "Dia": "Miércoles", "Hombres": 6, "Mujeres": 7, "Total": 13},
+                {"Fecha": "12/06/2025", "Dia": "Jueves", "Hombres": 6, "Mujeres": 24, "Total": 30},
+                {"Fecha": "13/06/2025", "Dia": "Viernes", "Hombres": 8, "Mujeres": 19, "Total": 27},
+                {"Fecha": "14/06/2025", "Dia": "Sábado (Víspera)", "Hombres": 27, "Mujeres": 32, "Total": 59},
+                {"Fecha": "15/06/2025", "Dia": "Domingo (Día del Padre)", "Hombres": 32, "Mujeres": 48, "Total": 80},
+                {"Fecha": "16/06/2025", "Dia": "Lunes", "Hombres": 3, "Mujeres": 4, "Total": 7},
+                {"Fecha": "17/06/2025", "Dia": "Martes", "Hombres": 19, "Mujeres": 22, "Total": 41},
+                {"Fecha": "18/06/2025", "Dia": "Miércoles", "Hombres": 8, "Mujeres": 30, "Total": 38}
+            ],
+            "heatmapAnalysis": [
+                {"Fecha": "01/06", "Dia": "Dom", "Zona_A": "N", "Zona_B": "V", "Zona_C": "R/A", "Zona_D": "V", "Zona_E": "A", "Zona_F": "R/A", "Zona_G": "A"},
+                {"Fecha": "03/06", "Dia": "Mar", "Zona_A": "N", "Zona_B": "N", "Zona_C": "R", "Zona_D": "N", "Zona_E": "A", "Zona_F": "A", "Zona_G": "A"},
+                {"Fecha": "14/06", "Dia": "Sáb", "Zona_A": "V", "Zona_B": "A/V", "Zona_C": "R", "Zona_D": "A", "Zona_E": "R/A", "Zona_F": "R", "Zona_G": "R/A"},
+                {"Fecha": "15/06", "Dia": "Dom", "Zona_A": "A", "Zona_B": "A", "Zona_C": "R", "Zona_D": "R/A", "Zona_E": "R/A", "Zona_F": "R/A", "Zona_G": "R"}
+            ],
+            "zoneDescriptions": {
+                "A": "Zona de zapatos casuales para hombre.",
+                "B": "Zona de zapatos de vestir para hombre.",
+                "C": "Asientos probadores de calzado.",
+                "D": "Zona de zapatos deportivos para hombre.",
+                "E": "Zona de zapatos deportivos para mujer y asientos.",
+                "F": "Zona de zapatos para mujer, casual y de vestir.",
+                "G": "Caja de cobro."
+            }
+        }
+    </script>
+
+    <div class="container">
+        <!-- Section 1: Header -->
+        <header>
+            <img src="https://img.freepik.com/premium-vector/shoe-logo_1040969-5.jpg" alt="Logo de SHOE STORE">
+            <h1>SHOE STORE: Insights del Comportamiento del Cliente</h1>
+            <h2>Análisis de Mapas de Calor y datos generados por analíticos de IA de VEZHA Incoresoft y Estrategias para Optimizar Ventas</h2>
+        </header>
+
+        <!-- Navigation Menu -->
+        <nav class="main-nav">
+            <ul>
+                <li><a href="#traffic-analysis">Afluencia de Clientes</a></li>
+                <li><a href="#heatmap-insights">Mapas de Calor</a></li>
+                <li><a href="#fathers-day-impact">Impacto Día del Padre</a></li>
+                <li><a href="#action-plan">Plan de Acción</a></li>
+                <li><a href="#ai-chat">Consulta IA</a></li>
+                <li><a href="#data-sources">Fuentes de Datos</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <!-- Section 2: Interactive Traffic Exploration -->
+            <section id="traffic-analysis">
+                <h3>Afluencia de Clientes: Análisis Diario</h3>
+                <!-- Canvas for Chart.js graph -->
+                <div style="position: relative; height:450px; width:100%;">
+                    <canvas id="trafficChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Moved Section: Analysis of Heatmaps -->
+            <section id="heatmap-insights">
+                <h3>Análisis Profundo de Mapas de Calor</h3>
+                <p>Aquí puedes obtener una interpretación detallada del comportamiento del cliente en las diferentes zonas de la tienda, basada en los datos del mapa de calor.</p>
+                <!-- Heatmap Image -->
+                <img src="https://i.postimg.cc/HW4G6kVf/Descripci-n-Zonas-Heat-Map-Pixelado.png" alt="Imagen de un Mapa de Calor de la Tienda" class="heatmap-image">
+
+                <!-- New: Zone Descriptions -->
+                <div class="zone-descriptions">
+                    <h4>Descripciones de Zonas en el Mapa de Calor:</h4>
+                    <ul>
+                        <li><strong>Zona A:</strong> Zona de zapatos casuales para hombre.</li>
+                        <li><strong>Zona B:</strong> Zona de zapatos de vestir para hombre.</li>
+                        <li><strong>Zona C:</strong> Asientos probadores de calzado.</li>
+                        <li><strong>Zona D:</strong> Zona de zapatos deportivos para hombre.</li>
+                        <li><strong>Zona E:</strong> Zona de zapatos deportivos para mujer y asientos.</li>
+                        <li><strong>Zona F:</strong> Zona de zapatos para mujer, casual y de vestir.</li>
+                        <li><strong>Zona G:</strong> Caja de cobro.</li>
+                    </ul>
+                </div>
+                <!-- End New: Zone Descriptions -->
+
+                <button id="generateHeatmapInsightsBtn" class="llm-button">✨ Obtener Insights del Mapa de Calor ✨</button>
+
+                <div id="heatmapInsightsOutput" class="llm-output-area">
+                    <h4>Insights Detallados del Mapa de Calor</h4>
+                    <p id="heatmapInsightsContent"></p>
+                    <button id="exportHeatmapInsightsPdfBtn" class="llm-button">Exportar a PDF</button>
+                    <div class="loading-indicator" style="display: none;">Generando insights del mapa de calor...</div>
+                </div>
+            </section>
+            <!-- End Moved Section -->
+
+            <!-- Section 3: Father's Day Effect -->
+            <section id="fathers-day-impact">
+                <h3>Caso de Estudio: El Impacto del Día del Padre</h3>
+                <div class="comparative-grid">
+                    <!-- Card for Typical Day -->
+                    <div class="comparative-card">
+                        <h4>Comportamiento Estándar (Martes 03/06)</h4>
+                        <p class="data-point">Total Clientes: 32</p>
+                        <p class="data-point">% Hombres: 44%</p>
+                        <p class="data-point">% Mujeres: 56%</p>
+                        <p class="analysis-text">Análisis de calor: Alta actividad solo en zona de asientos (C) y calzado de mujer (F).</p>
+                    </div>
+                    <!-- Card for Eve of Event -->
+                    <div class="comparative-card">
+                        <h4>Víspera del Evento (Sábado 14/06)</h4>
+                        <p class="data-point">Total Clientes: 59</p>
+                        <p class="data-point">% Hombres: 46%</p>
+                        <p class="data-point">% Mujeres: 54%</p>
+                        <p class="analysis-text">Análisis de calor: Aumento drástico. Se activan zonas masculinas (B, D) y la caja (G) se intensifica.</p>
+                    </div>
+                    <!-- Card for Day of Event -->
+                    <div class="comparative-card">
+                        <h4>Día del Padre (Domingo 15/06)</h4>
+                        <p class="data-point">Total Clientes: 80</p>
+                        <p class="data-point">% Hombres: 40%</p>
+                        <p class="data-point">% Mujeres: 60%</p>
+                        <p class="analysis-text">Análisis de calor: Actividad máxima en TODAS las zonas. Las zonas de hombre (A, B, D) y la caja (G) en su punto más alto.</p>
+                    </div>
+                </div>
+
+                <!-- Button for LLM-powered summary -->
+                <button id="generateSummaryBtn" class="llm-button">✨ Generar Resumen de Insights ✨</button>
+
+                <!-- Area to display the generated summary -->
+                <!-- This area is hidden by default and becomes visible when the button is clicked -->
+                <div id="summaryOutput" class="llm-output-area">
+                    <h4>Resumen de Insights y Acciones Estratégicas</h4>
+                    <p id="summaryContent"></p>
+                    <button id="exportSummaryPdfBtn" class="llm-button">Exportar a PDF</button>
+                    <div class="loading-indicator" style="display: none;">Generando resumen...</div>
+                </div>
+            </section>
+
+            <!-- Section 4: Strategic Action Plan -->
+            <section id="action-plan">
+                <h3>Plan de Acción para Optimizar Ventas</h3>
+                <!-- This grid contains the static content of the action plan, always visible -->
+                <div class="action-plan-grid">
+                    <!-- Card for Layout and Merchandising Strategies -->
+                    <div class="action-card">
+                        <h4>Estrategias de Layout y Merchandising</h4>
+                        <p><strong>Insight:</strong> Las zonas de hombre son "zonas de destino", inactivas en días normales.</p>
+                        <p><strong>Acción:</strong> Crear un "hot spot" con los productos masculinos más vendidos cerca del pasillo principal (Zona F -> C) para fomentar la compra por impulso.</p>
+                    </div>
+                    <!-- Card for Marketing and Promotions Strategies -->
+                    <div class="action-card">
+                        <h4>Estrategias de Marketing y Promociones</h4>
+                        <p><strong>Insight:</strong> El 80-90% del tráfico entre semana son mujeres. Los fines de semana son los días pico.</p>
+                        <p><strong>Acción:</strong> Lanzar promociones "2x1" o descuentos en calzado de hombre de lunes a jueves, dirigidas al público femenino. Crear campañas para eventos clave (Navidad, San Valentín) replicando el éxito del Día del Padre.</p>
+                    </div>
+                    <!-- Card for Staff Management Strategies -->
+                    <div class="action-card">
+                        <h4>Estrategias de Gestión de Personal</h4>
+                        <p><strong>Insight:</strong> La ruta F -> C -> G es la más transitada.</p>
+                        <p><strong>Acción:</strong> Asignar personal de forma proactiva en estas zonas durante los fines de semana. En días tranquilos, el personal puede enfocarse en tareas de reposición y preparación.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: AI Questions and Answers - Custom chat interface -->
+            <section id="ai-chat">
+                <h3>Consulta los Datos</h3>
+                <!-- Updated descriptive text for the chat section -->
+                <p class="chat-intro">Esta sección usa Inteligencia Artificial Generativa para responder preguntas sobre el contenido del reporte. Puedes hacer preguntas como por ejemplo: '¿Cuál fue el día de menor afluencia?' o 'Compara el tráfico de los dos domingos analizados'.</p>
+
+                <!-- Custom Chat Interface -->
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Initial AI message providing context and instructions -->
+                        <div class="chat-message ai">
+                             Hola, soy tu asistente de análisis de datos de SHOE STORE. Estoy aquí para responder preguntas sobre el reporte de tráfico y mapas de calor. Por favor, pregunta solo sobre la información contenida en el documento.
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <textarea id="chatInput" placeholder="Escribe tu pregunta aquí..." rows="1"></textarea>
+                        <button id="sendChatBtn">Enviar</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 6: Data Sources -->
+            <section id="data-sources">
+                <h3>Fuentes de Datos</h3>
+                <p>En este folder compartido se encuentran los mapas de calor y datos de género, edad y conteo de los clientes que entraron a la tienda a comprar. Con estos datos se alimentó un modelo de análisis de IA y el chat de IA que puede conversar sobre el contenido del reporte.</p>
+                <a href="https://drive.google.com/drive/folders/1ONYTW5uY8hHp5LrA9yDhD_GoTDPeJp7q?usp=sharing" target="_blank" class="styled-button">Acceder a los Datos</a>
+            </section>
+
+        </main>
+
+        <!-- Section 7: Footer -->
+        <footer>
+            <p>Derechos Reservados Grupo SCOPE, S.A. de C.V. - 21 de junio de 2025</p>
+        </footer>
+    </div>
+
+    <script>
+        // Store chat history to maintain context for the LLM
+        let chatHistory = [];
+
+        // Function to scroll chat messages to the bottom
+        function scrollToBottom(element) {
+            element.scrollTop = element.scrollHeight;
+        }
+
+        // Add a message to the chat display
+        function addMessageToChat(message, sender) {
+            const chatMessagesDiv = document.getElementById('chatMessages');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message', sender);
+            messageElement.textContent = message;
+            chatMessagesDiv.appendChild(messageElement);
+            scrollToBottom(chatMessagesDiv);
+        }
+
+        // Asynchronous function to interact with the Gemini API for chat
+        async function sendMessageToGemini(userMessage, fullContextData) {
+            const apiKey = "" // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            // Add the new user message to the chat history
+            chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+
+            // Stringify the full context data to pass to the LLM
+            const dataString = JSON.stringify(fullContextData, null, 2);
+
+            // Construct the prompt for the LLM, ensuring it's constrained to the provided data
+            const prompt = `Eres un asistente experto en análisis de datos. Responde preguntas sobre el siguiente reporte de comportamiento de clientes en la tienda SHOE STORE. Utiliza EXCLUSIVAMENTE los datos proporcionados a continuación y el contenido de la página. No uses conocimiento externo. Si la información no está en los datos, indica que no la tienes y evita inventar información. Sé conciso y directo.\n\nDatos del Reporte:\n${dataString}\n\nPregunta: ${userMessage}`;
+
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+
+            const sendChatBtn = document.getElementById('sendChatBtn');
+            sendChatBtn.disabled = true; // Disable button while sending
+
+            addMessageToChat('Escribiendo...', 'ai'); // Show a typing indicator
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                // Remove typing indicator
+                const chatMessagesDiv = document.getElementById('chatMessages');
+                if (chatMessagesDiv.lastChild && chatMessagesDiv.lastChild.textContent === 'Escribiendo...') {
+                    chatMessagesDiv.removeChild(chatMessagesDiv.lastChild);
+                }
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const aiResponse = result.candidates[0].content.parts[0].text;
+                    addMessageToChat(aiResponse, 'ai');
+                    chatHistory.push({ role: "model", parts: [{ text: aiResponse }] });
+                } else {
+                    addMessageToChat('Lo siento, no pude obtener una respuesta de la IA. Por favor, intenta reformular tu pregunta.', 'ai');
+                    console.error('Unexpected API response structure:', result);
+                }
+            } catch (error) {
+                // Remove typing indicator
+                const chatMessagesDiv = document.getElementById('chatMessages');
+                if (chatMessagesDiv.lastChild && chatMessagesDiv.lastChild.textContent === 'Escribiendo...') {
+                    chatMessagesDiv.removeChild(chatMessagesDiv.lastChild);
+                }
+                addMessageToChat('Hubo un error al conectar con la IA. Por favor, verifica tu conexión a internet.', 'ai');
+                console.error('Error fetching from Gemini API:', error);
+            } finally {
+                sendChatBtn.disabled = false; // Re-enable button
+                document.getElementById('chatInput').value = ''; // Clear input field
+                scrollToBottom(document.getElementById('chatMessages'));
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Parse the embedded JSON data from the script tag
+            const reportDataScript = document.getElementById('reportData');
+            const data = JSON.parse(reportDataScript.textContent);
+            const trafficSummary = data.trafficSummary;
+            const heatmapAnalysis = data.heatmapAnalysis;
+            const zoneDescriptions = data.zoneDescriptions;
+
+            // --- Navigation Smooth Scroll Logic ---
+            document.querySelectorAll('.main-nav a').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault(); // Prevent default anchor click behavior
+                    const targetId = this.getAttribute('href'); // Get the target section ID
+                    const targetElement = document.querySelector(targetId); // Find the target element
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth' // Smooth scroll effect
+                        });
+                    }
+                });
+            });
+
+            // --- Chart.js Initialization for Traffic Analysis ---
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+
+            // Prepare data for the chart
+            const labels = trafficSummary.map(item => `${item.Fecha.slice(0, 5)} ${item.Dia}`);
+            const totalTraffic = trafficSummary.map(item => item.Total);
+            const maleTraffic = trafficSummary.map(item => item.Hombres);
+            const femaleTraffic = trafficSummary.map(item => item.Mujeres);
+
+            // Calculate the daily average traffic for the entire period
+            const averageTraffic = totalTraffic.reduce((sum, total) => sum + total, 0) / totalTraffic.length;
+
+            // Find the index of the Father's Day (June 15th) to highlight its bar
+            const fathersDayIndex = trafficSummary.findIndex(item => item.Fecha === '15/06/2025');
+
+            // Define bar colors: accent color for Father's Day, default blue with opacity for others
+            const barColors = totalTraffic.map((value, index) =>
+                index === fathersDayIndex ? 'var(--accent-color)' : 'rgba(0, 74, 127, 0.6)'
+            );
+
+            // Initialize the Chart.js graph
+            const trafficChart = new Chart(ctx, {
+                type: 'bar', /* Bar chart type */
+                data: {
+                    labels: labels, /* X-axis labels (Date Day) */
+                    datasets: [
+                        {
+                            label: 'Total de Clientes',
+                            data: totalTraffic, /* Y-axis data (Total Clients) */
+                            backgroundColor: barColors, /* Dynamic bar colors */
+                            borderColor: 'var(--accent-color)', /* Border color for bars */
+                            borderWidth: 1,
+                            borderRadius: 5, /* Rounded corners for bars */
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, /* Chart resizes with window */
+                    maintainAspectRatio: false, /* Allows height to be set by CSS */
+                    plugins: {
+                        legend: {
+                            display: false, /* Hide legend as it's a single dataset */
+                        },
+                        tooltip: {
+                            /* Customize tooltip to show detailed traffic breakdown */
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label; /* Shows "Date Day" */
+                                },
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    const total = trafficSummary[index].Total;
+                                    const hombres = trafficSummary[index].Hombres;
+                                    const mujeres = trafficSummary[index].Mujeres;
+                                    return [
+                                        `Total: ${total}`,
+                                        `Hombres: ${hombres}`,
+                                        `Mujeres: ${mujeres}`
+                                    ];
+                                }
+                            },
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)', /* Dark background for tooltip */
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            padding: 10,
+                            boxPadding: 5,
+                            displayColors: false, /* Hide color box in tooltip */
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Fecha y Día',
+                                color: 'var(--text-color)',
+                                font: { size: 14, weight: 'bold' }
+                            },
+                            grid: {
+                                display: false /* Hide vertical grid lines */
+                            },
+                            ticks: {
+                                color: 'var(--text-color)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Total de Clientes',
+                                color: 'var(--text-color)',
+                                font: { size: 14, weight: 'bold' }
+                            },
+                            beginAtZero: true, /* Start Y-axis at zero */
+                            ticks: {
+                                color: 'var(--text-color)'
+                            },
+                        }
+                    }
+                },
+                /* Custom Chart.js plugin to draw the horizontal average line manually
+                  as the annotations plugin is not explicitly included via CDN.
+                  This approach ensures the dashed line and label are drawn directly on the canvas. */
+                plugins: [{
+                    id: 'annotation',
+                    beforeDraw: (chart, args, options) => {
+                        const {ctx, scales: {x, y}} = chart;
+                        // Define the annotation properties
+                        const annotation = {
+                            type: 'line',
+                            mode: 'horizontal',
+                            scaleID: 'y',
+                            value: averageTraffic,
+                            borderColor: 'var(--light-accent-color)', /* Accent color for average line */
+                            borderWidth: 2,
+                            borderDash: [5, 5], /* Dashed line pattern */
+                            label: {
+                                enabled: true,
+                                content: `Promedio Diario: ${averageTraffic.toFixed(0)}`,
+                                position: 'end',
+                                backgroundColor: 'var(--light-accent-color)',
+                                font: { size: 12, weight: 'bold', family: chart.options.font.family || 'Lato' }
+                            }
+                        };
+
+                        // Draw the line
+                        if (annotation.type === 'line' && annotation.mode === 'horizontal') {
+                            const yPos = y.getPixelForValue(annotation.value);
+                            ctx.save();
+                            ctx.strokeStyle = annotation.borderColor;
+                            ctx.lineWidth = annotation.borderWidth;
+                            ctx.setLineDash(annotation.borderDash);
+                            ctx.beginPath();
+                            ctx.moveTo(x.left, yPos);
+                            ctx.lineTo(x.right, yPos);
+                            ctx.stroke();
+                            ctx.restore();
+
+                            // Draw the label for the line
+                            if (annotation.label.enabled) {
+                                ctx.save();
+                                ctx.fillStyle = annotation.label.backgroundColor;
+                                ctx.font = `${annotation.label.font.weight} ${annotation.label.font.size}px ${annotation.label.font.family}`;
+                                ctx.textAlign = 'right';
+                                ctx.textBaseline = 'middle';
+                                const text = annotation.label.content;
+                                const textPadding = 5;
+                                const textX = x.right - textPadding;
+                                const textY = yPos;
+
+                                // Background rectangle for the label for better readability
+                                const metrics = ctx.measureText(text);
+                                const rectWidth = metrics.width + (textPadding * 2);
+                                const rectHeight = annotation.label.font.size + (textPadding * 2);
+                                const rectX = x.right - rectWidth;
+                                const rectY = yPos - (rectHeight / 2);
+
+                                ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+                                ctx.fillStyle = 'white'; /* Text color for the label */
+                                ctx.fillText(text, textX, textY);
+                                ctx.restore();
+                            }
+                        }
+                    }
+                }]
+            });
+
+
+            // --- Custom Chat Interface Logic ---
+            const chatInput = document.getElementById('chatInput');
+            const sendChatBtn = document.getElementById('sendChatBtn');
+
+            // Construct the full context data for the chat LLM
+            const fullContextDataForChat = {
+                trafficSummary: trafficSummary,
+                heatmapAnalysis: heatmapAnalysis,
+                zoneDescriptions: zoneDescriptions,
+                reportSections: {
+                    fathersDayImpact: {
+                        'Martes 03/06': {
+                            'Total Clientes': 32, '% Hombres': '44%', '% Mujeres': '56%',
+                            'Análisis de calor': 'Alta actividad solo en zona de asientos (C) y calzado de mujer (F).'
+                        },
+                        'Sábado 14/06 (Víspera)': {
+                            'Total Clientes': 59, '% Hombres': '46%', '% Mujeres': '54%',
+                            'Análisis de calor': 'Aumento drástico. Se activan zonas masculinas (B, D) y la caja (G) se intensifica.'
+                        },
+                        'Domingo 15/06 (Día del Padre)': {
+                            'Total Clientes': 80, '% Hombres': '40%', '% Mujeres': '60%',
+                            'Análisis de calor': 'Actividad máxima en TODAS las zonas. Las zonas de hombre (A, B, D) y la caja (G) en su punto más alto.'
+                        }
+                    },
+                    actionPlan: [
+                        {
+                            'Titulo': 'Estrategias de Layout y Merchandising',
+                            'Insight': 'Las zonas de hombre son "zonas de destino", inactivas en días normales.',
+                            'Accion': 'Crear un "hot spot" con los productos masculinos más vendidos cerca del pasillo principal (Zona F -> C) para fomentar la compra por impulso.'
+                        },
+                        {
+                            'Titulo': 'Estrategias de Marketing y Promociones',
+                            'Insight': 'El 80-90% del tráfico entre semana son mujeres. Los fines de semana son los días pico.',
+                            'Accion': 'Lanzar promociones "2x1" o descuentos en calzado de hombre de lunes a jueves, dirigidas al público femenino. Crear campañas para eventos clave (Navidad, San Valentín) replicando el éxito del Día del Padre.'
+                        },
+                        {
+                            'Titulo': 'Estrategias de Gestión de Personal',
+                            'Insight': 'La ruta F -> C -> G es la más transitada.',
+                            'Accion': 'Asignar personal de forma proactiva en estas zonas durante los fines de semana. En días tranquilos, el personal puede enfocarse en tareas de reposición y preparación.'
+                        }
+                    ]
+                }
+            };
+
+            // Event listener for sending messages on button click
+            sendChatBtn.addEventListener('click', () => {
+                const userMessage = chatInput.value.trim();
+                if (userMessage) {
+                    addMessageToChat(userMessage, 'user');
+                    sendMessageToGemini(userMessage, fullContextDataForChat);
+                }
+            });
+
+            // Event listener for sending messages on Enter key press in the textarea
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { // Allow Shift+Enter for new line
+                    e.preventDefault(); // Prevent default Enter behavior (new line)
+                    sendChatBtn.click(); // Trigger button click
+                }
+            });
+
+
+            // --- LLM-powered Summary Feature ---
+            const generateSummaryBtn = document.getElementById('generateSummaryBtn');
+            const summaryOutput = document.getElementById('summaryOutput');
+            const summaryContent = document.getElementById('summaryContent');
+            const summaryLoadingIndicator = summaryOutput.querySelector('.loading-indicator');
+            const exportSummaryPdfBtn = document.getElementById('exportSummaryPdfBtn');
+
+            // Asynchronous function to generate a summary using the Gemini API
+            async function generateSummary() {
+                // Show loading indicator and clear previous content
+                summaryOutput.classList.add('show');
+                summaryLoadingIndicator.style.display = 'block';
+                summaryContent.textContent = ''; // Clear previous summary
+                generateSummaryBtn.disabled = true; // Disable button during generation
+                exportSummaryPdfBtn.style.display = 'none'; // Hide PDF button while generating
+
+                // Construct a comprehensive context from all report sections for the LLM
+                const reportContext = `
+                    Análisis de Reporte de Comportamiento del Cliente SHOE STORE:
+
+                    Resumen de Tráfico:
+                    ${JSON.stringify(trafficSummary, null, 2)}
+
+                    Análisis de Mapa de Calor (R=Rojo/Alta, A=Amarillo/Media, V=Verde/Baja, N=Nula):
+                    ${JSON.stringify(heatmapAnalysis, null, 2)}
+
+                    Descripciones de Zonas:
+                    ${JSON.stringify(zoneDescriptions, null, 2)}
+
+                    Impacto del Día del Padre:
+                    - Comportamiento Estándar (Martes 03/06): Total Clientes 32, 44% Hombres, 56% Mujeres. Alta actividad solo en zona de asientos (C) y calzado de mujer (F).
+                    - Víspera del Evento (Sábado 14/06): Total Clientes 59, 46% Hombres, 54% Mujeres. Aumento drástico. Se activan zonas masculinas (B, D) y la caja (G) se intensifica.
+                    - Día del Padre (Domingo 15/06): Total Clientes 80, 40% Hombres, 60% Mujeres. Actividad máxima en TODAS las zonas. Las zonas de hombre (A, B, D) y la caja (G) en su punto más alto.
+
+                    Plan de Acción Estratégico:
+                    1. Estrategias de Layout y Merchandising:
+                       Insight: Las zonas de hombre son "zonas de destino", inactivas en días normales.
+                       Accion: Crear un "hot spot" con los productos masculinos más vendidos cerca del pasillo principal (Zona F -> C) para fomentar la compra por impulso.
+                    2. Estrategias de Marketing y Promociones:
+                       Insight: El 80-90% del tráfico entre semana son mujeres. Los fines de semana son los días pico.
+                       Accion: Lanzar promociones "2x1" o descuentos en calzado de hombre de lunes a jueves, dirigidas al público femenino. Crear campañas para eventos clave (Navidad, San Valentín) replicando el éxito del Día del Padre.
+                    3. Estrategias de Gestión de Personal:
+                       Insight: La ruta F -> C -> G es la más transitada.
+                       Accion: Asignar personal de forma proactiva en estas zonas durante los fines de semana. En días tranquilos, el personal puede enfocarse en tareas de reposición y preparación.
+                `;
+
+                const prompt = `Basándote en el siguiente reporte de comportamiento del cliente de la tienda SHOE STORE, genera un resumen conciso de los hallazgos clave sobre el tráfico de clientes, el análisis de mapas de calor, el impacto del Día del Padre, y las acciones estratégicas recomendadas. Enfócate en las conclusiones más importantes y las recomendaciones prácticas. El resumen debe ser claro, directo y no exceder los 200-250 palabras.\n\n${reportContext}`;
+
+                // Prepare payload for Gemini API call
+                const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        summaryContent.textContent = text;
+                        exportSummaryPdfBtn.style.display = 'block'; // Show PDF button after content is loaded
+                    } else {
+                        summaryContent.textContent = 'No se pudo generar el resumen. Inténtalo de nuevo más tarde.';
+                        console.error('Unexpected API response structure:', result);
+                    }
+                } catch (error) {
+                    summaryContent.textContent = 'Error al conectar con la IA para generar el resumen. Por favor, verifica tu conexión.';
+                    console.error('Error fetching summary from Gemini API:', error);
+                } finally {
+                    summaryLoadingIndicator.style.display = 'none';
+                    generateSummaryBtn.disabled = false; // Re-enable button
+                }
+            }
+
+            // Add event listener to the summary generation button
+            generateSummaryBtn.addEventListener('click', generateSummary);
+
+            // --- PDF Export Logic for Summary ---
+            exportSummaryPdfBtn.addEventListener('click', () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const content = summaryContent.textContent;
+                const lines = doc.splitTextToSize(content, 180); // Split text to fit page width (180mm)
+
+                let y = 20; // Initial Y position
+                const lineHeight = 10; // Line height
+                const pageHeight = doc.internal.pageSize.height; // Get page height
+
+                doc.setFont("helvetica", "normal"); // Set a standard font
+                doc.setFontSize(12);
+
+                lines.forEach((line) => {
+                    if (y > pageHeight - 20) { // Check if new page is needed (20mm from bottom)
+                        doc.addPage();
+                        y = 20; // Reset Y for new page
+                    }
+                    doc.text(line, 10, y); // Add text at X=10, current Y
+                    y += lineHeight; // Move to next line
+                });
+
+                doc.save('resumen_insights_SHOE_STORE.pdf');
+            });
+
+
+            // --- LLM-powered Heatmap Insights Feature ---
+            const generateHeatmapInsightsBtn = document.getElementById('generateHeatmapInsightsBtn');
+            const heatmapInsightsOutput = document.getElementById('heatmapInsightsOutput');
+            const heatmapInsightsContent = document.getElementById('heatmapInsightsContent');
+            const heatmapLoadingIndicator = heatmapInsightsOutput.querySelector('.loading-indicator');
+            const exportHeatmapInsightsPdfBtn = document.getElementById('exportHeatmapInsightsPdfBtn'); // PDF export button for Heatmap Insights
+
+            // Function to interpret heatmap codes
+            function interpretHeatmapCode(code) {
+                switch (code) {
+                    case 'N': return 'Nula actividad';
+                    case 'V': return 'Actividad Baja (Verde)';
+                    case 'A': return 'Actividad Media (Amarillo)';
+                    case 'R': return 'Actividad Alta (Rojo)';
+                    case 'R/A': return 'Actividad entre Alta y Media (Rojo/Amarillo)';
+                    case 'A/V': return 'Actividad entre Media y Baja (Amarillo/Verde)';
+                    default: return 'Desconocido';
+                }
+            }
+
+            async function generateHeatmapInsights() {
+                heatmapInsightsOutput.classList.add('show');
+                heatmapLoadingIndicator.style.display = 'block';
+                heatmapInsightsContent.textContent = '';
+                generateHeatmapInsightsBtn.disabled = true;
+                exportHeatmapInsightsPdfBtn.style.display = 'none'; // Hide PDF button while generating
+
+                // Build context for the heatmap insights
+                let heatmapContext = "Análisis de Mapas de Calor:\n";
+                heatmapAnalysis.forEach(dayData => {
+                    heatmapContext += `\nFecha: ${dayData.Fecha}, Día: ${dayData.Dia}\n`;
+                    for (const zone in dayData) {
+                        if (zone.startsWith('Zona_')) {
+                            const zoneCode = dayData[zone];
+                            const zoneName = zone.replace('Zona_', 'Zona ');
+                            const description = zoneDescriptions[zone.replace('Zona_', '')] || 'Descripción no disponible';
+                            const interpretedActivity = interpretHeatmapCode(zoneCode);
+                            heatmapContext += `- ${zoneName} (${description}): ${interpretedActivity}\n`;
+                        }
+                    }
+                });
+
+                const prompt = `Basándote en el siguiente análisis de mapas de calor de la tienda SHOE STORE y las descripciones de las zonas, genera un informe detallado que interprete los patrones de actividad. Para cada día, describe el comportamiento general de los clientes en las zonas y destaca cualquier tendencia o anomalía. También, proporciona un par de recomendaciones estratégicas generales basadas en estos patrones para mejorar la experiencia del cliente o las ventas. Los códigos de actividad son: N=Nula, V=Baja, A=Media, R=Alta, R/A=Entre Alta y Media, A/V=Entre Media y Baja. El informe debe ser coherente y fácil de entender. \n\n${heatmapContext}`;
+
+                const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        heatmapInsightsContent.textContent = text;
+                        exportHeatmapInsightsPdfBtn.style.display = 'block'; // Show PDF button after content is loaded
+                    } else {
+                        heatmapInsightsContent.textContent = 'No se pudieron generar los insights del mapa de calor. Inténtalo de nuevo más tarde.';
+                        console.error('Unexpected API response structure for heatmap insights:', result);
+                    }
+                } catch (error) {
+                    heatmapInsightsContent.textContent = 'Error al conectar con la IA para generar los insights del mapa de calor. Por favor, verifica tu conexión.';
+                    console.error('Error fetching heatmap insights from Gemini API:', error);
+                } finally {
+                    heatmapLoadingIndicator.style.display = 'none';
+                    generateHeatmapInsightsBtn.disabled = false;
+                }
+            }
+
+            generateHeatmapInsightsBtn.addEventListener('click', generateHeatmapInsights);
+
+            // --- PDF Export Logic for Heatmap Insights ---
+            exportHeatmapInsightsPdfBtn.addEventListener('click', () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const content = heatmapInsightsContent.textContent;
+                const lines = doc.splitTextToSize(content, 180); // Split text to fit page width (180mm)
+
+                let y = 20; // Initial Y position
+                const lineHeight = 10; // Line height
+                const pageHeight = doc.internal.pageSize.height; // Get page height
+
+                doc.setFont("helvetica", "normal"); // Set a standard font
+                doc.setFontSize(12);
+
+                lines.forEach((line) => {
+                    if (y > pageHeight - 20) { // Check if new page is needed (20mm from bottom)
+                        doc.addPage();
+                        y = 20; // Reset Y for new page
+                    }
+                    doc.text(line, 10, y); // Add text at X=10, current Y
+                    y += lineHeight; // Move to next line
+                });
+
+                doc.save('insights_mapa_calor_SHOE_STORE.pdf');
+            });
+        });
+    </script>
+</body>
+</html>
